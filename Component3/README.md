@@ -2,8 +2,10 @@
 api-design-final-project-team-15 created by GitHub Classroom
 
 ## Enter venv (Mac)
+```bash
 source venv/bin/activate
 pip install -r requirements.txt
+```
 
 ## Compile grpc code
 ```bash
