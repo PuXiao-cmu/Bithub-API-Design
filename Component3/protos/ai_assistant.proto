@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package ai_assistant;
+
+service AIAssistant {
+    rpc WritePRDescription (WritePRDescriptionRequest) returns (WritePRDescriptionResponse) {}
+    rpc SmartAutoComplete (SmartAutoCompleteRequest) returns (SmartAutoCompleteResponse) {}
+    rpc ChatGPTForCode (ChatGPTForCodeRequest) returns (ChatGPTForCodeResponse) {}
+    rpc VirtualPairAssistant (stream ConversationRequest) returns (stream ConversationResponse) {}
+}
+
+message WritePRDescriptionRequest {
+    string committed_changes = 1;
+}
+
+message WritePRDescriptionResponse {
+    string pr_description = 1;
+}
+
+message Context {
+    string repo_content = 1;
+    string committed_changes = 2;
+    string uncommitted_changes = 3;
+    string curr_branch = 4;
+}
+
+message SmartAutoCompleteRequest {
+    Context current_context = 1;
+    string recent_edits = 2;
+}
+
+message SmartAutoCompleteResponse {
+    string code_completion = 1;
+}
+
+message ChatGPTForCodeRequest {
+    string task_description = 1; 
+    string committed_code = 2;
+    string uncommitted_code = 3;
+}
+
+message ChatGPTForCodeResponse {
+    oneof response {
+        string clarification_request = 1;
+        string delta = 2;
+    }
+}
+
+message ConversationContext {
+    string existing_code = 1;
+    string stack_trace = 2;
+    string description = 3;
+}
+
+message ConversationRequest {
+    ConversationContext context = 1;
+    // Used to end the converwsation
+    bool is_end = 2;
+}
+
+message ConversationResponse {
+    string proposed_delta = 1;
+    string description = 2;
+}
