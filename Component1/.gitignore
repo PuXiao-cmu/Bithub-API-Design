@@ -1,0 +1,40 @@
+# Virtual environment
+venv/
+.env/
+
+# Pycache files
+__pycache__/
+*.py[cod]
+
+# Test cache
+.pytest_cache/
+
+# Instance folder (used for local configuration in Flask apps)
+instance/
+
+# Logs and temporary files
+*.log
+*.sqlite3
+*.db
+*.pid
+*.swp
+*.swo
+*.tmp
+*.bak
+*.orig
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Environment variables and secrets
+.env
+*.env
+
+# IDE and Editor settings
+.vscode/
+.idea/
+*.iml
+
+# Python bytecode
+*.py[cod]
