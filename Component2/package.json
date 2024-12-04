@@ -1,0 +1,33 @@
+{
+  "name": "typescript-starter",
+  "version": "1.0.0",
+  "description": "Starter code in TypeScript for A0 and beyond",
+  "author": "Pu Xiao",
+  "license": "MIT",
+  "main": "out/src/index.js",
+  "scripts": {
+    "build": "npx tsc",
+    "start": "node out/src/index.js",
+    "dev": "ts-node src/index.ts",
+    "test": "jest --coverage",
+    "lint": "gts lint",
+    "clean": "gts clean",
+    "compile": "tsc",
+    "fix": "gts fix",
+    "prepare": "npm run compile",
+    "pretest": "npm run compile",
+    "posttest": "npm run lint"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.6",
+    "@types/node": "20.8.2",
+    "gts": "^5.2.0",
+    "ts-jest": "^29.1.1",
+    "typescript": "~5.2.0"
+  },
+  "dependencies": {
+    "apollo-server": "^3.13.0",
+    "graphql": "^16.9.0",
+    "typescript-starter": "file:"
+  }
+}
