@@ -1,9 +1,16 @@
+export enum PullRequestStatus {
+  PENDING = "pending",
+  CONFLICT = "conflict",
+  MERGED = "merged",
+  REJECTED = "rejected",
+}
+
 export interface PullRequest {
   id: string;
   description: string;
   sourceCommit: Commit;
   branchTarget: Commit;
-  status: string;
+  status: PullRequestStatus;
   comments: Comment[];
   changedFiles: string[];
 }

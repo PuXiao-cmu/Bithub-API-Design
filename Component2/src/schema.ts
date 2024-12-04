@@ -1,12 +1,19 @@
 import { gql } from "apollo-server";
 
 export const typeDefs = gql`
+  enum PullRequestStatus {
+    PENDING
+    MERGED
+    REJECTED
+    CONFLICT
+  }
+
   type PullRequest {
     id: ID!
     description: String!
     sourceCommit: Commit!
     branchTarget: Commit!
-    status: String!
+    status: PullRequestStatus!
     comments: [Comment!]!
     changedFiles: [String!]!
   }
@@ -32,15 +39,15 @@ export const typeDefs = gql`
   }
 
   type Query {
-    pullRequests(status: String, page: Int, limit: Int): [PullRequest!]!
+    pullRequests(status: PullRequestStatus, page: Int, limit: Int): [PullRequest!]!
     pullRequest(id: ID!): PullRequest
   }
 
   type Mutation {
     createPullRequest(
       description: String!
-      sourceCommit: String!
-      branchTarget: String!
+      sourceCommitId: String!
+      branchTargetId: String!
     ): PullRequest
     mergePullRequest(id: ID!): PullRequest
     rejectPullRequest(id: ID!): PullRequest

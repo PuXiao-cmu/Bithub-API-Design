@@ -1,6 +1,5 @@
-import { Commit, PullRequest } from "./types";
+import { Commit, PullRequest, PullRequestStatus } from "./types";
 
-// Mock commits with ancestors
 export const mockCommits: Commit[] = [
   { id: "1", message: "Initial commit", ancestors: [] },
   { id: "2", message: "Second commit", ancestors: ["1"] },
@@ -13,14 +12,13 @@ export const mockCommits: Commit[] = [
   { id: "9", message: "Main branch commit after hotfix merge", ancestors: ["1", "2", "4"] },
 ];
 
-// Mock pull requests
 export const mockPullRequests: PullRequest[] = [
   {
     id: "1",
     description: "Merge feature branch into main",
-    sourceCommit: mockCommits[2], // Commit ID "3"
-    branchTarget: mockCommits[1], // Commit ID "2"
-    status: "merged",
+    sourceCommit: mockCommits[2],
+    branchTarget: mockCommits[1],
+    status: PullRequestStatus.MERGED,
     comments: [
       {
         id: "c1",
@@ -37,18 +35,18 @@ export const mockPullRequests: PullRequest[] = [
   {
     id: "2",
     description: "Hotfix: Patch critical bug in production",
-    sourceCommit: mockCommits[3], // Commit ID "4"
-    branchTarget: mockCommits[1], // Commit ID "2"
-    status: "pending",
+    sourceCommit: mockCommits[3],
+    branchTarget: mockCommits[1],
+    status: PullRequestStatus.PENDING,
     comments: [],
     changedFiles: ["hotfix.js"],
   },
   {
     id: "3",
     description: "Experimental branch: Add new prototype features",
-    sourceCommit: mockCommits[6], // Commit ID "7"
-    branchTarget: mockCommits[1], // Commit ID "2"
-    status: "rejected",
+    sourceCommit: mockCommits[6],
+    branchTarget: mockCommits[1],
+    status: PullRequestStatus.REJECTED,
     comments: [
       {
         id: "c2",
@@ -62,13 +60,12 @@ export const mockPullRequests: PullRequest[] = [
   {
     id: "4",
     description: "Bugfix on feature branch",
-    sourceCommit: mockCommits[4], // Commit ID "5"
-    branchTarget: mockCommits[2], // Commit ID "3"
-    status: "pending",
+    sourceCommit: mockCommits[4],
+    branchTarget: mockCommits[2],
+    status: PullRequestStatus.PENDING,
     comments: [],
     changedFiles: ["bugfix.js"],
   },
 ];
 
-// Helper function to generate unique IDs
 export const generateId = (): string => Math.random().toString(36).substring(7);

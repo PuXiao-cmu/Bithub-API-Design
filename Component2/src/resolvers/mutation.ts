@@ -1,5 +1,5 @@
 import { mockPullRequests, mockCommits, generateId } from "../dataStore";
-import { Commit } from "../types";
+import { PullRequestStatus, Commit } from "../types";
 
 // Helper function to check for a common ancestor
 function hasCommonAncestorOptimized(commit1: Commit | null, commit2: Commit | null): boolean {
@@ -35,30 +35,30 @@ export const mutationResolvers = {
         description: args.description,
         sourceCommit: sourceCommit,
         branchTarget: branchTarget,
-        status: "pending",
+        status: PullRequestStatus.PENDING,
         comments: [],
         changedFiles: [],
       };
       if (sourceCommit.id.startsWith("0")) {
-        newPR.status = "merge conflict";
+        newPR.status = PullRequestStatus.CONFLICT;
       }
       mockPullRequests.push(newPR);
       return newPR;
     },
     mergePullRequest: (_: any, args: { id: string }) => {
       const pr = mockPullRequests.find(pr => pr.id === args.id);
-      if (!pr || pr.status === "merge conflict") {
+      if (!pr || pr.status !== PullRequestStatus.PENDING) {
         throw new Error("Cannot merge this PR");
       }
-      pr.status = "merged";
+      pr.status = PullRequestStatus.MERGED;
       return pr;
     },
     rejectPullRequest: (_: any, args: { id: string }) => {
       const pr = mockPullRequests.find(pr => pr.id === args.id);
-      if (!pr) {
-        throw new Error("Pull Request not found");
+      if (!pr || pr.status === PullRequestStatus.MERGED || pr.status === PullRequestStatus.REJECTED) {
+        throw new Error("Cannot reject this PR");
       }
-      pr.status = "rejected";
+      pr.status = PullRequestStatus.REJECTED;
       return pr;
     },
     addComment: (
@@ -106,7 +106,18 @@ export const mutationResolvers = {
       if (!comment) {
         throw new Error("Comment not found");
       }
-      comment.reactions = comment.reactions.filter(r => r.type !== args.type);
+
+      const reaction = comment.reactions.find(r => r.type === args.type);
+      if (!reaction) {
+        throw new Error("Reaction not found");
+      }
+
+      if (reaction.count > 1) {
+        reaction.count -= 1;
+      } else {
+        comment.reactions = comment.reactions.filter(r => r.type !== args.type);
+      }
+
       return comment;
     },
   },
