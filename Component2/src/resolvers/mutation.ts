@@ -1,23 +1,47 @@
-import { mockPullRequests, generateId } from "../dataStore";
+import { mockPullRequests, mockCommits, generateId } from "../dataStore";
+import { Commit } from "../types";
+
+// Helper function to check for a common ancestor
+function hasCommonAncestorOptimized(commit1: Commit | null, commit2: Commit | null): boolean {
+  if (!commit1 || !commit2) return false;
+
+  const ancestors1 = new Set(commit1.ancestors);
+  for (const ancestor of commit2.ancestors) {
+    if (ancestors1.has(ancestor)) {
+      return true;
+    }
+  }
+  return false;
+}
 
 export const mutationResolvers = {
   Mutation: {
     createPullRequest: (
       _: any,
-      args: { description: string; sourceCommit: string; branchTarget: string }
+      args: { description: string; sourceCommitId: string; branchTargetId: string }
     ) => {
-      if (!args.sourceCommit || args.sourceCommit.startsWith("0")) {
-        throw new Error("Merge conflict: invalid sourceCommit");
+      // Find sourceCommit and branchTarget in mockCommits
+      const sourceCommit = mockCommits.find(commit => commit.id === args.sourceCommitId);
+      const branchTarget = mockCommits.find(commit => commit.id === args.branchTargetId);
+
+      if (!sourceCommit || !branchTarget) {
+        throw new Error("Source commit or branch target not found");
+      }
+      if (!hasCommonAncestorOptimized(sourceCommit, branchTarget)) {
+        throw new Error("Source commit and branch target have no common ancestor");
       }
       const newPR = {
         id: generateId(),
         description: args.description,
-        sourceCommit: args.sourceCommit,
-        branchTarget: args.branchTarget,
+        sourceCommit: sourceCommit,
+        branchTarget: branchTarget,
         status: "pending",
         comments: [],
         changedFiles: [],
       };
+      if (sourceCommit.id.startsWith("0")) {
+        newPR.status = "merge conflict";
+      }
       mockPullRequests.push(newPR);
       return newPR;
     },

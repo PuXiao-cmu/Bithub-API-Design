@@ -4,11 +4,17 @@ export const typeDefs = gql`
   type PullRequest {
     id: ID!
     description: String!
-    sourceCommit: String!
-    branchTarget: String!
+    sourceCommit: Commit!
+    branchTarget: Commit!
     status: String!
     comments: [Comment!]!
     changedFiles: [String!]!
+  }
+
+  type Commit {
+    id: ID!
+    message: String!
+    ancestors: [ID!]!
   }
 
   type Comment {
