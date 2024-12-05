@@ -37,7 +37,6 @@ export const mutationResolvers = {
         branchTarget: branchTarget,
         status: PullRequestStatus.PENDING,
         comments: [],
-        changedFiles: [],
       };
       if (sourceCommit.id.startsWith("0")) {
         newPR.status = PullRequestStatus.CONFLICT;

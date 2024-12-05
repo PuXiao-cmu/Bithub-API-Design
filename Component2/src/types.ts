@@ -1,8 +1,8 @@
 export enum PullRequestStatus {
-  PENDING = "pending",
-  CONFLICT = "conflict",
-  MERGED = "merged",
-  REJECTED = "rejected",
+  PENDING = "PENDING",
+  CONFLICT = "CONFLICT",
+  MERGED = "MERGED",
+  REJECTED = "REJECTED",
 }
 
 export interface PullRequest {
@@ -12,13 +12,13 @@ export interface PullRequest {
   branchTarget: Commit;
   status: PullRequestStatus;
   comments: Comment[];
-  changedFiles: string[];
 }
 
 export interface Commit {
   id: string;
   message: string;
   ancestors: string[];
+  changedFiles: FileChange[];
 }
 
 export interface Comment {
@@ -33,5 +33,16 @@ export interface Reaction {
   id: string;
   type: string;
   count: number;
+}
+
+export interface FileChange {
+  fileName: string;
+  changedLines: ChangedLine[];
+}
+
+export interface ChangedLine {
+  lineNumber: number;
+  content: string;
+  inlineComments?: Comment[];
 }
   

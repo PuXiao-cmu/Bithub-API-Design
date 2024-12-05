@@ -3,9 +3,9 @@ import { gql } from "apollo-server";
 export const typeDefs = gql`
   enum PullRequestStatus {
     PENDING
+    CONFLICT
     MERGED
     REJECTED
-    CONFLICT
   }
 
   type PullRequest {
@@ -15,13 +15,13 @@ export const typeDefs = gql`
     branchTarget: Commit!
     status: PullRequestStatus!
     comments: [Comment!]!
-    changedFiles: [String!]!
   }
 
   type Commit {
     id: ID!
     message: String!
     ancestors: [ID!]!
+    changedFiles: [FileChange!]!
   }
 
   type Comment {
@@ -36,6 +36,17 @@ export const typeDefs = gql`
     id: ID!
     type: String!
     count: Int!
+  }
+
+  type FileChange {
+    fileName: String!
+    changedLines: [ChangedLine!]!
+  }
+
+  type ChangedLine {
+    lineNumber: Int!
+    content: String!
+    inlineComments: [Comment!]
   }
 
   type Query {

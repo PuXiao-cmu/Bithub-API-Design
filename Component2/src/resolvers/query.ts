@@ -12,7 +12,24 @@ export const queryResolvers = {
       return filtered.slice(start, start + (args.limit || 10));
     },
     pullRequest: (_: any, args: { id: string }) => {
-      return mockPullRequests.find(pr => pr.id === args.id);
+      const pr = mockPullRequests.find(pr => pr.id === args.id);
+      if (!pr) {
+        throw new Error("Pull Request not found");
+      }
+
+      const changedFiles = pr.sourceCommit.changedFiles.map(file => ({
+        fileName: file.fileName,
+        changedLines: file.changedLines.map(line => ({
+          lineNumber: line.lineNumber,
+          content: line.content,
+          inlineComments: line.inlineComments || [],
+        })),
+      }));
+
+      return {
+        ...pr,
+        changedFiles,
+      };
     },
   },
 };

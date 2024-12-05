@@ -1,15 +1,64 @@
 import { Commit, PullRequest, PullRequestStatus } from "./types";
 
 export const mockCommits: Commit[] = [
-  { id: "1", message: "Initial commit", ancestors: [] },
-  { id: "2", message: "Second commit", ancestors: ["1"] },
-  { id: "3", message: "Feature branch commit", ancestors: ["1", "2"] },
-  { id: "4", message: "Hotfix branch commit", ancestors: ["1", "2"] },
-  { id: "5", message: "Bugfix commit on feature branch", ancestors: ["1", "2", "3"] },
-  { id: "6", message: "Another feature branch commit", ancestors: ["1", "2", "3"] },
-  { id: "7", message: "Experimental branch commit", ancestors: ["1", "2"] },
-  { id: "8", message: "Main branch commit after feature merge", ancestors: ["1", "2", "3"] },
-  { id: "9", message: "Main branch commit after hotfix merge", ancestors: ["1", "2", "4"] },
+  {
+    id: "1",
+    message: "Initial commit",
+    ancestors: [],
+    changedFiles: [],
+  },
+  {
+    id: "2",
+    message: "Second commit",
+    ancestors: ["1"],
+    changedFiles: [],
+  },
+  {
+    id: "3",
+    message: "Feature branch commit",
+    ancestors: ["1", "2"],
+    changedFiles: [
+      {
+        fileName: "feature1.js",
+        changedLines: [
+          { lineNumber: 10, content: "const feature = () => {};" },
+          { lineNumber: 20, content: "return feature;" },
+        ],
+      },
+      {
+        fileName: "feature2.js",
+        changedLines: [
+          { lineNumber: 5, content: "let unusedVar = true;" },
+        ],
+      },
+    ],
+  },
+  {
+    id: "4",
+    message: "Hotfix branch commit",
+    ancestors: ["1", "2"],
+    changedFiles: [
+      {
+        fileName: "hotfix.js",
+        changedLines: [
+          { lineNumber: 15, content: "if (bugFixed) return true;" },
+        ],
+      },
+    ],
+  },
+  {
+    id: "5",
+    message: "Bugfix commit on feature branch",
+    ancestors: ["1", "2", "3"],
+    changedFiles: [
+      {
+        fileName: "bugfix.js",
+        changedLines: [
+          { lineNumber: 25, content: "fixBug();" },
+        ],
+      },
+    ],
+  },
 ];
 
 export const mockPullRequests: PullRequest[] = [
@@ -30,7 +79,6 @@ export const mockPullRequests: PullRequest[] = [
         ],
       },
     ],
-    changedFiles: ["feature1.js", "feature2.js"],
   },
   {
     id: "2",
@@ -39,7 +87,6 @@ export const mockPullRequests: PullRequest[] = [
     branchTarget: mockCommits[1],
     status: PullRequestStatus.PENDING,
     comments: [],
-    changedFiles: ["hotfix.js"],
   },
   {
     id: "3",
@@ -55,16 +102,6 @@ export const mockPullRequests: PullRequest[] = [
         reactions: [{ id: "r3", type: "👎", count: 2 }],
       },
     ],
-    changedFiles: ["experiment1.js", "experiment2.js"],
-  },
-  {
-    id: "4",
-    description: "Bugfix on feature branch",
-    sourceCommit: mockCommits[4],
-    branchTarget: mockCommits[2],
-    status: PullRequestStatus.PENDING,
-    comments: [],
-    changedFiles: ["bugfix.js"],
   },
 ];
 
