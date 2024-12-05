@@ -29,7 +29,7 @@ def client():
         db.drop_all()
 
 
-# Test: 7 List repository issues
+# Test: 9 List repository issues
 def test_list_repository_issues_happy_path(client):
     response = client.get('/repositories/1/issues')
     assert response.status_code == 200
@@ -42,7 +42,7 @@ def test_list_repository_issues_happy_path(client):
     assert data[1]['status'] == 'Closed'
     assert data[1]['submitter_id'] == 2
 
-# Test: 7 List repository issues - filter status
+# Test: 9 List repository issues - filter status
 def test_list_repository_issues_filter_by_status_open(client):
     response = client.get('/repositories/1/issues?status=Open')
     assert response.status_code == 200
@@ -53,14 +53,14 @@ def test_list_repository_issues_filter_by_status_open(client):
     assert data[0]['status'] == 'Open'
     assert data[0]['submitter_id'] == 1
 
-# Test: 7 List repository issues - Error: repository not found
+# Test: 9 List repository issues - Error: repository not found
 def test_list_repository_issues_repository_not_found(client):
     response = client.get('/repositories/99/issues')
     assert response.status_code == 404
     data = response.get_json()
     assert data['message'] == 'Repository not found'
 
-# Test: 8 View a specific issue details
+# Test: 10 View a specific issue details
 # shows the issue description and its data (submission date, submitter ID, status, etc), and one page of comments.
 def test_view_issue_details_happy_path(client):
     response = client.get('/repositories/1/issues/1')
@@ -80,14 +80,14 @@ def test_view_issue_details_happy_path(client):
     assert parsed_date.month == datetime.now().month
     assert parsed_date.day == datetime.now().day
 
-# Test: 8 View a specific issue detai - Error: Issue not found
+# Test: 10 View a specific issue detai - Error: Issue not found
 def test_view_issue_details_issue_not_found(client):
     response = client.get('/repositories/1/issues/99')
     assert response.status_code == 404
     data = response.get_json()
     assert data['message'] == 'Issue not found'
 
-# Test: 9 Report a new issue
+# Test: 11 Report a new issue
 def test_report_new_issue_happy_path(client):
     response = client.post('/repositories/1/issues', json={
         'title': 'New Issue',
@@ -104,7 +104,7 @@ def test_report_new_issue_happy_path(client):
     assert issues[2]['title'] == 'New Issue'
     assert issues[2]['status'] == 'Open'
 
-# Test: 9 Report a new issue - Error: 
+# Test: 11 Report a new issue - Error: 
 def test_report_new_issue_repository_not_found(client):
     response = client.post('/repositories/99/issues', json={
         'description': 'Report to invalid repo'
@@ -113,7 +113,7 @@ def test_report_new_issue_repository_not_found(client):
     data = response.get_json()
     assert data['message'] == 'Repository not found'
 
-# Test: 10 Paginate comments for an issue
+# Test: 12 Paginate comments for an issue
 def test_paginate_issue_comments_happy_path(client):
     response = client.get('/repositories/1/issues/1/comments?page=1&size=1')
     assert response.status_code == 200
@@ -121,14 +121,14 @@ def test_paginate_issue_comments_happy_path(client):
     assert len(data) == 1
     assert data[0]['content'] == 'Test comment for issue 1'
 
-# Test: 10 Paginate comments for an issue - Error: page is negative number
+# Test: 12 Paginate comments for an issue - Error: page is negative number
 def test_paginate_issue_comments_page_negative(client):
     response = client.get('/repositories/1/issues/1/comments?page=-1&size=1')
     assert response.status_code == 400
     data = response.get_json()
     assert data['message'] == 'Page and size must be positive integers'
 
-# Test: 11 Submit a new comment
+# Test: 13 Submit a new comment
 def test_submit_new_comment_happy_path(client):
     response = client.post('/repositories/1/issues/1/comments', json={
         'content': 'Another comment'
@@ -141,7 +141,7 @@ def test_submit_new_comment_happy_path(client):
     data = response.get_json()
     assert len(data) == 2  # 应该有两个评论
 
-# Test: 11 Submit a new comment - Error: no commit content
+# Test: 13 Submit a new comment - Error: no commit content
 def test_submit_new_comment_invalid_input(client):
     response = client.post('/repositories/1/issues/1/comments', json={})
     assert response.status_code == 400

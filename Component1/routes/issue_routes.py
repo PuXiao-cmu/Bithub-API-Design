@@ -3,7 +3,7 @@ from models import db, Issue, Comment, Repository
 
 issue_bp = Blueprint('issue', __name__)
 
-# 7. List repository issues
+# 9. List repository issues
 @issue_bp.route('/repositories/<int:id>/issues', methods=['GET'])
 def list_repository_issues(id):
     repository = db.session.get(Repository, id)
@@ -27,11 +27,11 @@ def list_repository_issues(id):
             "submitter_id": issue.submitter_id
         }
         for issue in paginated_issues
-    ])
+    ]), 200
 
 
 
-# 8. View a specific issue details
+# 10. View a specific issue details
 @issue_bp.route('/repositories/<int:id>/issues/<int:issue_id>', methods=['GET'])
 def view_issue_details(id, issue_id):
     repository = db.session.get(Repository, id)
@@ -56,10 +56,10 @@ def view_issue_details(id, issue_id):
             {"id": comment.id, "content": comment.content}
             for comment in paginated_comments
         ]
-    })
+    }), 200
 
 
-# 9. Report a new issue
+# 11. Report a new issue
 @issue_bp.route('/repositories/<int:id>/issues', methods=['POST'])
 def report_new_issue(id):
     repository = db.session.get(Repository, id)
@@ -83,7 +83,7 @@ def report_new_issue(id):
     return jsonify({"id": issue.id, "message": "Issue created successfully"}), 201
 
 
-# 10. Paginate comments for an issue
+# 12. Paginate comments for an issue
 @issue_bp.route('/repositories/<int:id>/issues/<int:issue_id>/comments', methods=['GET'])
 def paginate_issue_comments(id, issue_id):
     repository = db.session.get(Repository, id)
@@ -107,10 +107,10 @@ def paginate_issue_comments(id, issue_id):
     return jsonify([
         {"id": comment.id, "content": comment.content}
         for comment in paginated_comments
-    ])
+    ]), 200
 
 
-# 11. Submit a new comment
+# 13. Submit a new comment
 @issue_bp.route('/repositories/<int:id>/issues/<int:issue_id>/comments', methods=['POST'])
 def submit_new_comment(id, issue_id):
     repository = db.session.get(Repository, id)
