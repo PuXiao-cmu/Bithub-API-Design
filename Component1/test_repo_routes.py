@@ -1,7 +1,6 @@
 import pytest
 from app import create_app
 from models import db, Repository, Branch, Tag, Commit
-from datetime import datetime
 
 @pytest.fixture
 def client():
@@ -55,8 +54,40 @@ def test_get_repository_default_view_error(client):
     assert response.status_code == 404
     assert response.json["message"] == "Repository_id Error. Repository not found"
 
+# Test: 2. Navigate to commits in the main branch
+def test_navigate_to_commits_in_main_branch_happy_path(client):
+    response = client.get("/repositories/1/branches/main/commits")
+    assert response.status_code == 200
+    data = response.get_json()
+    assert len(data) == 1  # Assuming the main branch has 2 commits
+    assert data[0]["commit id"] == 1
+    assert data[0]["hash"] == "abc123"
+    assert data[0]["message"] == "Initial commit"
 
-# Test: 2. List all branches
+# Test: 2. Navigate to commits in the main branch - Error: Invalid Repository id
+def test_navigate_to_commits_in_main_branch_error(client):
+    response = client.get("/repositories/99/branches/main/commits")
+    assert response.status_code == 404
+    assert response.json["message"] == "Repository not found"
+
+# Test: 3. Select commit by hash
+def test_select_commit_by_hash_happy_path(client):
+    response = client.get("/repositories/1/commits/abc123")
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["commit id"] == 1
+    assert data["hash"] == "abc123"
+    assert data["message"] == "Initial commit"
+    assert data["branch id"] == 1
+
+# Test: 3. Select commit by hash - Error: Invalid commit hash
+def test_select_commit_by_hash_error(client):
+    response = client.get("/repositories/1/commits/invalid_hash")
+    assert response.status_code == 404
+    assert response.json["message"] == "Commit not found"
+
+
+# Test: 4. List all branches
 def test_list_all_branches_happy_path(client):
     response = client.get("/repositories/1/branches")
     assert response.status_code == 200
@@ -67,14 +98,14 @@ def test_list_all_branches_happy_path(client):
     assert data[1]["branch id"]==2
     assert data[1]["branch name"]=="feature"
 
-# Test: 2. List all branches - Error: Invalid Repository id
+# Test: 4. List all branches - Error: Invalid Repository id
 def test_list_all_branches_error(client):
     response = client.get("/repositories/99/branches")
     assert response.status_code == 404
     assert response.json["message"] == "Repository not found"
 
 
-# Test: 3. List all tags
+# Test: 5. List all tags
 def test_list_all_tags_happy_path(client):
     response = client.get("/repositories/1/tags")
     assert response.status_code == 200
@@ -83,14 +114,14 @@ def test_list_all_tags_happy_path(client):
     assert data[0]["tag id"]==1
     assert data[0]["tag name"]=="v1.0"
 
-# Test: 3. List all tags - Error: Invalid Repository id
+# Test: 5. List all tags - Error: Invalid Repository id
 def test_list_all_tags_error(client):
     response = client.get("/repositories/99/tags")
     assert response.status_code == 404
     assert response.json["message"] == "Repository not found"
 
 
-# Test: 4. List all commits in a selected branch
+# Test: 6. List all commits in a selected branch
 def test_list_all_commits_happy_path(client):
     response = client.get("/repositories/1/branches/main/commits")
     assert response.status_code == 200
@@ -100,13 +131,13 @@ def test_list_all_commits_happy_path(client):
     assert data[0]["hash"] == "abc123"
     assert data[0]["message"] == "Initial commit"
 
-# Test: 4. List all commits in a selected branch - Error: Invalid branch id
+# Test: 6. List all commits in a selected branch - Error: Invalid branch id
 def test_list_all_commits_error(client):
     response = client.get("/repositories/1/branches/unknown/commits")
     assert response.status_code == 404
     assert response.json["message"] == "Repository or branch not found"
 
-# Test: 5. Get top-level tree in a commit
+# Test: 7. Get top-level tree in a commit
 def test_get_top_level_tree_happy_path(client):
     response = client.get("/repositories/1/branches/main/commits/abc123/tree")
     assert response.status_code == 200
@@ -116,14 +147,14 @@ def test_get_top_level_tree_happy_path(client):
     assert "file1.txt" in data["tree"]["children"]
     assert "subdir" in data["tree"]["children"]
 
-# Test: 5. Get top-level tree in a commit - Error: invalid commit hash
+# Test: 7. Get top-level tree in a commit - Error: invalid commit hash
 def test_get_top_level_tree_error(client):
     response = client.get("/repositories/1/branches/main/commits/unknown/tree")
     assert response.status_code == 404
     assert response.json["message"] == "Repository, branch, or commit not found"
 
 
-# Test: 6. View file or sub-tree
+# Test: 8. View file or sub-tree
 def test_view_file_or_subtree_happy_path(client):
     response = client.get("/repositories/1/branches/main/commits/abc123/tree/subdir")
     assert response.status_code == 200
@@ -131,7 +162,7 @@ def test_view_file_or_subtree_happy_path(client):
     assert "children" in data
     assert data["children"] == {}
 
-# Test: 6. View file or sub-tree - Error: invalid file path
+# Test: 8. View file or sub-tree - Error: invalid file path
 def test_view_file_or_subtree_error(client):
     response = client.get("/repositories/1/branches/main/commits/abc123/tree/unknown")
     assert response.status_code == 404

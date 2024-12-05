@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.types import JSON
-from datetime import datetime, timezone
+from datetime import datetime
 
 db = SQLAlchemy()
 
@@ -10,7 +10,7 @@ class Repository(db.Model):
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(500), nullable=True)
     author_id = db.Column(db.Integer, nullable=False)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now())
 
     branches = db.relationship('Branch', backref='repository')
     issues = db.relationship('Issue', backref='repository')
@@ -35,7 +35,7 @@ class Commit(db.Model):
     hash = db.Column(db.String(40), nullable=False, unique=True)
     message = db.Column(db.String(500), nullable=True)
     branch_id = db.Column(db.Integer, db.ForeignKey('branches.id'), nullable=False)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now())
     tree_structure = db.Column(JSON, nullable=True)
 
     tags = db.relationship('Tag', backref='commit')
@@ -47,7 +47,7 @@ class Issue(db.Model):
     description = db.Column(db.Text, nullable=True)
     status = db.Column(db.String(10), default='Open')  #  status: Open or Closed
     repository_id = db.Column(db.Integer, db.ForeignKey('repositories.id'), nullable=False)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now())
     submitter_id = db.Column(db.Integer, nullable=False)
 
     comments = db.relationship('Comment', backref='issue')
@@ -57,5 +57,5 @@ class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
     issue_id = db.Column(db.Integer, db.ForeignKey('issues.id'), nullable=False)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now())
 
