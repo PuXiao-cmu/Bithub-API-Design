@@ -1,4 +1,4 @@
-import { mockPullRequests, mockCommits, generateId } from "../dataStore";
+import { mockPullRequests, mockCommits, mockComments, generateId } from "../dataStore";
 import { PullRequestStatus, Commit } from "../types";
 
 // Helper function to check for a common ancestor
@@ -62,7 +62,7 @@ export const mutationResolvers = {
     },
     addComment: (
       _: any,
-      args: { prId: string; type: string; line?: number; content: string }
+      args: { prId: string; type: string; file?: string; line?: number; content: string }
     ) => {
       const pr = mockPullRequests.find(pr => pr.id === args.prId);
       if (!pr) {
@@ -72,23 +72,67 @@ export const mutationResolvers = {
       const newComment = {
         id: generateId(),
         type: args.type,
+        file: args.file,
         line: args.line,
         content: args.content,
         reactions: [],
       };
-      pr.comments.push(newComment);
+      if (args.file) {
+        const fileChange = pr.sourceCommit.changedFiles.find(file => file.fileName === args.file);
+        if (!fileChange) {
+          throw new Error(`File ${args.file} not found in changed files`);
+        }
+        // Check if the line exists in the file's changedLines
+        const lineChange = fileChange.changedLines.find(line => line.lineNumber === args.line);
+        if (!lineChange) {
+          throw new Error(`Line ${args.line} not found in file ${args.file}`);
+        }
+        // Add the comment to the inlineComments of the specified line
+        lineChange.inlineComments = lineChange.inlineComments || [];
+        lineChange.inlineComments.push(newComment);
+      } else {
+        pr.comments.push(newComment);
+      }
       return newComment;
     },
-    deleteComment: (_: any, args: { prId: string; commentId: string }) => {
+    deleteComment: (
+      _: any,
+      args: { prId: string; commentId: string; file?: string; line?: number }
+    ) => {
       const pr = mockPullRequests.find(pr => pr.id === args.prId);
       if (!pr) {
         throw new Error("Pull Request not found");
       }
-      pr.comments = pr.comments.filter(comment => comment.id !== args.commentId);
+    
+      if (args.file) {
+        const fileChange = pr.sourceCommit.changedFiles.find(file => file.fileName === args.file);
+        if (!fileChange) {
+          throw new Error(`File ${args.file} not found in changed files`);
+        }
+        const lineChange = fileChange.changedLines.find(line => line.lineNumber === args.line);
+        if (!lineChange) {
+          throw new Error(`Line ${args.line} not found in file ${args.file}`);
+        }
+
+        const initialCommentCount = lineChange.inlineComments?.length || 0;
+        lineChange.inlineComments = lineChange.inlineComments?.filter(comment => comment.id !== args.commentId) || [];
+
+        if (lineChange.inlineComments.length === initialCommentCount) {
+          throw new Error(`Comment ${args.commentId} not found in file ${args.file} on line ${args.line}`);
+        }
+      } else {
+        const initialCommentCount = pr.comments.length;
+        pr.comments = pr.comments.filter(comment => comment.id !== args.commentId);
+
+        if (pr.comments.length === initialCommentCount) {
+          throw new Error(`Comment ${args.commentId} not found in general comments`);
+        }
+      }
+    
       return pr;
-    },
+    },    
     addReaction: (_: any, args: { commentId: string; type: string }) => {
-      const comment = mockPullRequests.flatMap(pr => pr.comments).find(c => c.id === args.commentId);
+      const comment = mockComments.find(c => c.id === args.commentId);
       if (!comment) {
         throw new Error("Comment not found");
       }
@@ -101,7 +145,7 @@ export const mutationResolvers = {
       return comment;
     },
     removeReaction: (_: any, args: { commentId: string; type: string }) => {
-      const comment = mockPullRequests.flatMap(pr => pr.comments).find(c => c.id === args.commentId);
+      const comment = mockComments.find(c => c.id === args.commentId);
       if (!comment) {
         throw new Error("Comment not found");
       }

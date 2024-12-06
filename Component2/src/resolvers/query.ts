@@ -17,19 +17,7 @@ export const queryResolvers = {
         throw new Error("Pull Request not found");
       }
 
-      const changedFiles = pr.sourceCommit.changedFiles.map(file => ({
-        fileName: file.fileName,
-        changedLines: file.changedLines.map(line => ({
-          lineNumber: line.lineNumber,
-          content: line.content,
-          inlineComments: line.inlineComments || [],
-        })),
-      }));
-
-      return {
-        ...pr,
-        changedFiles,
-      };
+      return pr;
     },
   },
 };

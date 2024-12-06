@@ -24,6 +24,7 @@ export interface Commit {
 export interface Comment {
   id: string;
   type: string;
+  file?: string;
   line?: number;
   content: string;
   reactions: Reaction[];

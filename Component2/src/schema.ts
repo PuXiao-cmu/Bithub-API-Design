@@ -27,6 +27,7 @@ export const typeDefs = gql`
   type Comment {
     id: ID!
     type: String!
+    file: String
     line: Int
     content: String!
     reactions: [Reaction!]!
@@ -62,8 +63,8 @@ export const typeDefs = gql`
     ): PullRequest
     mergePullRequest(id: ID!): PullRequest
     rejectPullRequest(id: ID!): PullRequest
-    addComment(prId: ID!, type: String!, line: Int, content: String!): Comment
-    deleteComment(prId: ID!, commentId: ID!): PullRequest
+    addComment(prId: ID!, type: String!, file: String, line: Int, content: String!): Comment
+    deleteComment(prId: ID!, commentId: ID!, file: String, line: Int): PullRequest
     addReaction(commentId: ID!, type: String!): Comment
     removeReaction(commentId: ID!, type: String!): Comment
   }
